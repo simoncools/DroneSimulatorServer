@@ -23,11 +23,11 @@ public class Server {
         this.port = port;
         try {
             serverSocket = new ServerSocket(port);
-            //serverSocket.setSoTimeout(5000);
         }catch(IOException e){
             e.printStackTrace();
         }
         controller = new Mpu6050Controller();
+        /*
         try {
             controller.initialize();
         }catch(IOException a){
@@ -36,7 +36,7 @@ public class Server {
             b.printStackTrace();
         }catch(I2CFactory.UnsupportedBusNumberException c){
             c.printStackTrace();
-        }
+        }*/
     }
 
     public void listen(){
