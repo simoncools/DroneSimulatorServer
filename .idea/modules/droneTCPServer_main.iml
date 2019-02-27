@@ -5,9 +5,10 @@
     <exclude-output />
     <content url="file://$MODULE_DIR$/../../src/main">
       <sourceFolder url="file://$MODULE_DIR$/../../src/main/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/../../src/main/resources" type="java-resource" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Gradle: com.pi4j:pi4j-core:1.1" level="project" />
+    <orderEntry type="library" name="Gradle: com.pi4j:pi4j-core:1.2-SNAPSHOT" level="project" />
   </component>
 </module>

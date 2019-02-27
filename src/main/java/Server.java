@@ -1,3 +1,6 @@
+import com.pi4j.io.gpio.GpioController;
+import com.pi4j.io.gpio.GpioFactory;
+import com.pi4j.io.gpio.RaspiPin;
 import com.pi4j.io.i2c.I2CFactory;
 import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 
@@ -40,6 +43,7 @@ public class Server {
     }
 
     public void listen(){
+        GpioController gpio = GpioFactory.getInstance();
         try {
             System.out.println("Listening for connections...");
             clientSocket = serverSocket.accept();
@@ -60,6 +64,7 @@ public class Server {
             System.out.println("Error while listening.");
             isConnected = false;
         }
+        gpio.shutdown();
         isConnected = false;
     }
 
