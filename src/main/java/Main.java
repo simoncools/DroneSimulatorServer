@@ -15,7 +15,13 @@ import java.net.Socket;
 
 public class Main {
     public static void main(String argv[]){
-        startServer(argv);
+      //  startServer(argv);
+        try {
+            Spi spi = new Spi();
+            spi.sendSpi(543,2);
+        }catch(IOException e){
+            e.printStackTrace();
+        }
     }
 
     public static void startServer(String argv[]){
