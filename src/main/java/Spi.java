@@ -7,9 +7,10 @@ import java.util.ArrayList;
 
 public class Spi {
     SpiDevice spi;
+    //ArrayList<SpiCommand> commandList = new ArrayList();
 
     public Spi() throws IOException{
-      //  spi = SpiFactory.getInstance(SpiChannel.CS0,100000,SpiDevice.DEFAULT_SPI_MODE);
+        spi = SpiFactory.getInstance(SpiChannel.CS0,100000,SpiDevice.DEFAULT_SPI_MODE);
     }
 
     public void sendSpi(int pwm, int motor){
@@ -37,10 +38,18 @@ public class Spi {
         System.out.println(s1); // 10000001
         System.out.println(s2); // 10000001
         System.out.println(s3); // 10000001*/
+        byte data[] = {commands[0],commands[1]};
+        try {
+            byte[] result = spi.write(data, 0, 8);
+        }catch(IOException e){
+            e.printStackTrace();
+        }
 
+    }
+
+    public void newThread(byte data[]){
         Thread thread = new Thread("SPIThread") {
             public void run(){
-                byte data[] = new byte[] {commands[0],commands[1]};
                 try {
                     byte[] result = spi.write(data, 0, 8);
                 }catch(IOException e){

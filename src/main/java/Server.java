@@ -43,8 +43,9 @@ public class Server {
     }
 
     public void listen(){
-        GpioController gpio = GpioFactory.getInstance();
+        //GpioController gpio = GpioFactory.getInstance();
         try {
+            Spi spi = new Spi();
             System.out.println("Listening for connections...");
             clientSocket = serverSocket.accept();
             isConnected = true;
@@ -55,6 +56,7 @@ public class Server {
             String data = in.readLine();
             while (data != null) {
                 System.out.println("Message : " + data);
+                spi.sendSpi(123,1);
                 data = in.readLine();
             }
 
@@ -64,7 +66,7 @@ public class Server {
             System.out.println("Error while listening.");
             isConnected = false;
         }
-        gpio.shutdown();
+       // gpio.shutdown();
         isConnected = false;
     }
 
