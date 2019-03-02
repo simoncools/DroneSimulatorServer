@@ -1,6 +1,7 @@
 import com.pi4j.io.spi.SpiChannel;
 import com.pi4j.io.spi.SpiDevice;
 import com.pi4j.io.spi.SpiFactory;
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -9,8 +10,12 @@ public class Spi {
     SpiDevice spi;
     //ArrayList<SpiCommand> commandList = new ArrayList();
 
-    public Spi() throws IOException{
-        spi = SpiFactory.getInstance(SpiChannel.CS0,100000,SpiDevice.DEFAULT_SPI_MODE);
+    public Spi(){
+        try {
+            spi = SpiFactory.getInstance(SpiChannel.CS0, 100000, SpiDevice.DEFAULT_SPI_MODE);
+        }catch(IOException e){
+            e.printStackTrace();
+        }
     }
 
     public void sendSpi(int pwm, int motor){
