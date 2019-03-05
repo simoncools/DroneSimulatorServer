@@ -4,7 +4,7 @@ public class Variables {
     public static int y1=0;
     public static int y2=0;
     public static double[] angles = {0.0,0.0};
-    public static double elapsedTime = 0;
+    public static double elapsedTime = 1;
 
     public static int motor_x_right = 1;
     public static int motor_x_left = 2;

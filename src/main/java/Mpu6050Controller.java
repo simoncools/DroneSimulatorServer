@@ -76,8 +76,6 @@ public class Mpu6050Controller {
             byte registerData = Mpu6050Controller.readRegister(i);
             System.out.println(i + "\t\tRegisterData:" + formatBinary(registerData));
         }
-
-        System.exit(0);
     }
 
 
