@@ -2,6 +2,7 @@ import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
 import com.pi4j.io.gpio.RaspiPin;
 import com.pi4j.io.i2c.I2CFactory;
+import com.pi4j.wiringpi.SoftPwm;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -15,6 +16,11 @@ import java.net.Socket;
 
 public class Main {
     public static void main(String argv[]){
+        com.pi4j.wiringpi.Gpio.wiringPiSetup();
+        SoftPwm.softPwmCreate(25,0,1000);
+        SoftPwm.softPwmCreate(24,0,1000);
+        SoftPwm.softPwmCreate(23,0,1000);
+        SoftPwm.softPwmCreate(22,0,1000);
        // listenSensor();
         motorPID();
         startServer(argv);
@@ -52,13 +58,13 @@ public class Main {
             double pid_i_y = 0;
             double pid_d_y = 0;
 
-            double kp_x = 4.2; //PID constants X
+            double kp_x = 8; //PID constants X
             double ki_x = 0.01;
-            double kd_x = 5.2;
+            double kd_x = 3;
 
-            double kp_y = 4.2; //PID constants Y
+            double kp_y = 8; //PID constants Y
             double ki_y = 0.01;
-            double kd_y = 5.2;
+            double kd_y = 3;
 
             double previous_error_x = 0;
             double previous_error_y = 0;
@@ -195,20 +201,19 @@ public class Main {
                     pwm_y_left = 1000;
                 }
 
-          /*      spi.sendSpi((int)pwm_x_right,Variables.motor_x_right);
+                myPwm((int)pwm_x_right,(int)pwm_x_left,(int)pwm_y_right,(int)pwm_y_left);
+          /*    spi.sendSpi((int)pwm_x_right,Variables.motor_x_right);
                 spi.sendSpi((int)pwm_x_left,Variables.motor_x_left);
                 spi.sendSpi((int)pwm_y_right,Variables.motor_y_right);
-                spi.sendSpi((int)pwm_y_left,Variables.motor_y_left);
+                spi.sendSpi((int)pwm_y_left,Variables.motor_y_left);*/
                 System.out.println("X Right :"+pwm_x_right);
                 System.out.println("X Left :"+pwm_x_left);
                 System.out.println("Y Right :"+pwm_y_right);
                 System.out.println("Y Left :"+pwm_y_left);
-                System.out.println("ElapsedTime :"+elapsedTime);
                 System.out.println("ErrorX :"+errorX);
                 System.out.println("ErrorY :"+errorY);
-                System.out.println("ElapsedTime :"+elapsedTime);
                 System.out.println("-----------------------");
-                System.out.println("");*/
+                System.out.println("");
                 previous_error_x = errorX;
                 previous_error_y = errorY;
 
@@ -282,5 +287,13 @@ public class Main {
         int result;
         result = (high*256 + low);
         return result;
+    }
+
+
+    public static void myPwm(int pwm1,int pwm2, int pwm3, int pwm4){
+        SoftPwm.softPwmWrite(22,pwm1);
+        SoftPwm.softPwmWrite(23,pwm2);
+        SoftPwm.softPwmWrite(24,pwm3);
+        SoftPwm.softPwmWrite(25,pwm4);
     }
 }
