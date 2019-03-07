@@ -45,10 +45,13 @@ public class Spi {
         System.out.println(s3); // 10000001*/
         byte data[] = {commands[0],commands[1]};
         try {
-            byte[] result = spi.write(data, 0, 8);
+            byte[] result = spi.write(data[0]);
+            Thread.sleep(1);
+             result = spi.write(data[1]);
+            Thread.sleep(1);
         }catch(IOException e){
             e.printStackTrace();
-        }
+        }catch(InterruptedException e2){}
 
     }
 
