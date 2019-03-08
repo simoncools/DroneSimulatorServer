@@ -52,11 +52,11 @@ public class Main {
             double pid_i_y = 0;
             double pid_d_y = 0;
 
-            double kp_x = 50; //PID constants X
+            double kp_x = 10; //PID constants X
             double ki_x = 0.01;
             double kd_x = 3;
 
-            double kp_y = 50; //PID constants Y
+            double kp_y = 10; //PID constants Y
             double ki_y = 0.01;
             double kd_y = 3;
 
@@ -65,8 +65,8 @@ public class Main {
             double PID_x = 0;
             double PID_y = 0;
 
-            double throttleX = 700;
-            double throttleY = 700;
+            double throttleX = 750;
+            double throttleY = 750;
 
             double pwm_x_right = 0;
             double pwm_x_left = 0;
@@ -195,26 +195,29 @@ public class Main {
                     pwm_y_left = 1000;
                 }
 
+
                 //myPwm((int)pwm_x_right,(int)pwm_x_left,(int)pwm_y_right,(int)pwm_y_left);
                 spi.sendSpi((int)pwm_x_right,Variables.motor_x_right);
                 spi.sendSpi((int)pwm_x_left,Variables.motor_x_left);
                 spi.sendSpi((int)pwm_y_right,Variables.motor_y_right);
                 spi.sendSpi((int)pwm_y_left,Variables.motor_y_left);
-                System.out.println("X Right :"+pwm_x_right);
+              /*  System.out.println("X Right :"+pwm_x_right);
                 System.out.println("X Left :"+pwm_x_left);
                 System.out.println("Y Right :"+pwm_y_right);
                 System.out.println("Y Left :"+pwm_y_left);
                 System.out.println("ErrorX :"+errorX);
                 System.out.println("ErrorY :"+errorY);
+                System.out.println("Elapsed :"+Variables.elapsedTime);
                 System.out.println("-----------------------");
-                System.out.println("");
+                System.out.println("");*/
                 previous_error_x = errorX;
                 previous_error_y = errorY;
 
                 try {
                     Thread.sleep(1);
                 }catch(InterruptedException e){
-                   // e.printStackTrace();
+                    e.printStackTrace();
+                    System.out.println("Error Reading");
                 }
             }
         });
