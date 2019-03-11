@@ -195,6 +195,14 @@ public class Main {
                     pwm_y_left = 1000;
                 }
 
+                /*////////////////////////////////
+                SPI test code for motor controller
+                //////////////////////////////////
+                pwm_x_left=800;
+                pwm_x_right=600;
+                pwm_y_left=400;
+                pwm_y_right=200;*/
+
 
                 //myPwm((int)pwm_x_right,(int)pwm_x_left,(int)pwm_y_right,(int)pwm_y_left);
                 spi.sendSpi((int)pwm_x_right,Variables.motor_x_right);
