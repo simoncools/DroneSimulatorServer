@@ -198,12 +198,12 @@ public class Main {
                 /*////////////////////////////////
                 SPI test code for motor controller
                 //////////////////////////////////
-                //test 1
+                //test 1*/
                 pwm_x_left=800;
                 pwm_x_right=600;
                 pwm_y_left=400;
                 pwm_y_right=200;
-                //test 2
+                /*//test 2
                 pwm_x_left=800 + Variables.x2;
                 pwm_x_right=800 - Variables.x2;
                 pwm_y_left=800 + Variables.y2;
