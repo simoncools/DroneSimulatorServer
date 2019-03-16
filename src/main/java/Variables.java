@@ -11,6 +11,6 @@ public class Variables {
     public static int motor_y_right = 3; //B6
     public static int motor_y_left = 4;  //B7
 
-    public static int xoffset = 3;
-    public static int yoffset = 3;
+    public static int xoffset = 0;
+    public static int yoffset = 0;
 }

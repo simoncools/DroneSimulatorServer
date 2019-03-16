@@ -1,18 +1,6 @@
-import com.pi4j.io.gpio.GpioController;
-import com.pi4j.io.gpio.GpioFactory;
-import com.pi4j.io.gpio.RaspiPin;
 import com.pi4j.io.i2c.I2CFactory;
 import com.pi4j.wiringpi.SoftPwm;
-
-import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.ServerSocket;
-import java.net.Socket;
 
 public class Main {
     public static void main(String argv[]){
@@ -40,11 +28,14 @@ public class Main {
 
     public static void motorPID(){
         Thread t = new Thread(()->{
+        /*
             try {
                 Thread.sleep(10);
             }catch(InterruptedException e){
                 e.printStackTrace();
             }
+         */
+
             double pid_p_x = 0;
             double pid_i_x = 0;
             double pid_d_x = 0;
@@ -52,9 +43,9 @@ public class Main {
             double pid_i_y = 0;
             double pid_d_y = 0;
 
-            double kp_x = 10; //PID constants X
+            double kp_x = 1; //PID constants X
             double ki_x = 0.01;
-            double kd_x = 3;
+            double kd_x = 1;
 
             double kp_y = 10; //PID constants Y
             double ki_y = 0.01;
@@ -77,9 +68,8 @@ public class Main {
             double elapsedTime;
             double[] angles = new double[2];
 
-            Mpu6050Controller controller = new Mpu6050Controller();
             try {
-                controller.initialize();
+                Mpu6050Controller.initialize();
             }catch(IOException a){
                 a.printStackTrace();
             }catch(InterruptedException b){
@@ -91,11 +81,10 @@ public class Main {
             double time = System.currentTimeMillis();
             Spi spi = new Spi();
             while(true) {
-
                 timePrev = time;
                 time = System.currentTimeMillis();
                 elapsedTime = (time-timePrev)/1000;
-                int[] data = readSensor(controller);
+                int[] data = readSensor();
                 if(data != null) {
                     int acc_x = data[3];
                     int acc_y = data[4];
@@ -118,8 +107,8 @@ public class Main {
                 }
 
                 /////////////////////////PID
-                double desiredAngleX = Variables.x2 / 3;
-                double desiredAngleY = Variables.y2 / 3;
+                double desiredAngleX = (double)Variables.x2 / 3;
+                double desiredAngleY = (double)Variables.y2 / 3;
                 double errorX = Variables.angles[0] - desiredAngleX + Variables.xoffset;
                 double errorY = Variables.angles[1] - desiredAngleY + Variables.yoffset;
 
@@ -127,14 +116,14 @@ public class Main {
                 pid_p_y = kp_y * errorY;
 
                 if (errorX > -3 && errorX < 3) {
-                  // pid_i_x += ki_x*errorX;
+                   pid_i_x += ki_x*errorX;
                 }
                 if (errorY > -3 && errorY < 3) {
-                  //  pid_i_y += ki_y*errorY;
+                    pid_i_y += ki_y*errorY;
                 }
 
-              //  pid_d_x = kd_x*((errorX-previous_error_x)/elapsedTime);
-              //  pid_d_y = kd_y*((errorY-previous_error_y)/elapsedTime);
+                pid_d_x = kd_x*((errorX-previous_error_x)/elapsedTime);
+                pid_d_y = kd_y*((errorY-previous_error_y)/elapsedTime);
 
                 PID_x = pid_d_x+pid_i_x+pid_p_x;
                 PID_y = pid_d_y+pid_i_y+pid_p_y;
@@ -195,15 +184,15 @@ public class Main {
                     pwm_y_left = 1000;
                 }
 
-                /*////////////////////////////////
-                SPI test code for motor controller
+               /* ////////////////////////////////
+                //SPI test code for motor controller
                 //////////////////////////////////
-                //test 1*/
-                pwm_x_left=800;
-                pwm_x_right=600;
-                pwm_y_left=400;
-                pwm_y_right=200;
-                /*//test 2
+                //test 1
+                pwm_x_left=875;
+                pwm_x_right=625;
+                pwm_y_left=500;
+                pwm_y_right=250;
+                //test 2
                 pwm_x_left=800 + Variables.x2;
                 pwm_x_right=800 - Variables.x2;
                 pwm_y_left=800 + Variables.y2;
@@ -213,10 +202,14 @@ public class Main {
                 pwm_x_right=800 - Variables.x2 - Variables.y2;
                 pwm_y_left=800 + Variables.x2 - Variables.y2 ;
                 pwm_y_right=800 - Variables.x2 + Variables.y2;
-                //*/
+                //
+                pwm_y_left = 500+(Variables.x2*5);
+                pwm_x_left = 500+(Variables.x2*5);
+                pwm_y_right = 500+(Variables.x2*5);
+                pwm_x_right = 500+(Variables.x2*5);
+                //System.out.println(Variables.x2);
+               */
 
-
-                //myPwm((int)pwm_x_right,(int)pwm_x_left,(int)pwm_y_right,(int)pwm_y_left);
                 spi.sendSpi((int)pwm_x_right,Variables.motor_x_right);
                 spi.sendSpi((int)pwm_x_left,Variables.motor_x_left);
                 spi.sendSpi((int)pwm_y_right,Variables.motor_y_right);
@@ -230,22 +223,16 @@ public class Main {
                 System.out.println("Elapsed :"+Variables.elapsedTime);
                 System.out.println("-----------------------");
                 System.out.println("");*/
+
                 previous_error_x = errorX;
                 previous_error_y = errorY;
-
-                try {
-                    Thread.sleep(1);
-                }catch(InterruptedException e){
-                    e.printStackTrace();
-                    System.out.println("Error Reading");
-                }
             }
         });
         t.start();
     }
 
 
-    public static int[] readSensor(Mpu6050Controller controller) {
+    public static int[] readSensor() {
         int gx;
         int gy;
         int gz;
@@ -255,33 +242,33 @@ public class Main {
         try {
             byte axh;
             byte axl;
-            axh = controller.readRegister(Mpu6050Registers.MPU6050_RA_ACCEL_XOUT_H);
-            axl = controller.readRegister(Mpu6050Registers.MPU6050_RA_ACCEL_XOUT_L);
+            axh = Mpu6050Controller.readRegister(Mpu6050Registers.MPU6050_RA_ACCEL_XOUT_H);
+            axl = Mpu6050Controller.readRegister(Mpu6050Registers.MPU6050_RA_ACCEL_XOUT_L);
 
             byte ayh;
             byte ayl;
-            ayh = controller.readRegister(Mpu6050Registers.MPU6050_RA_ACCEL_YOUT_H);
-            ayl = controller.readRegister(Mpu6050Registers.MPU6050_RA_ACCEL_YOUT_L);
+            ayh = Mpu6050Controller.readRegister(Mpu6050Registers.MPU6050_RA_ACCEL_YOUT_H);
+            ayl = Mpu6050Controller.readRegister(Mpu6050Registers.MPU6050_RA_ACCEL_YOUT_L);
 
             byte azh;
             byte azl;
-            azh = controller.readRegister(Mpu6050Registers.MPU6050_RA_ACCEL_ZOUT_H);
-            azl = controller.readRegister(Mpu6050Registers.MPU6050_RA_ACCEL_ZOUT_L);
+            azh = Mpu6050Controller.readRegister(Mpu6050Registers.MPU6050_RA_ACCEL_ZOUT_H);
+            azl = Mpu6050Controller.readRegister(Mpu6050Registers.MPU6050_RA_ACCEL_ZOUT_L);
 
             byte gxh;
             byte gxl;
-            gxh = controller.readRegister(Mpu6050Registers.MPU6050_RA_GYRO_XOUT_H);
-            gxl = controller.readRegister(Mpu6050Registers.MPU6050_RA_GYRO_XOUT_L);
+            gxh = Mpu6050Controller.readRegister(Mpu6050Registers.MPU6050_RA_GYRO_XOUT_H);
+            gxl = Mpu6050Controller.readRegister(Mpu6050Registers.MPU6050_RA_GYRO_XOUT_L);
 
             byte gyh;
             byte gyl;
-            gyh = controller.readRegister(Mpu6050Registers.MPU6050_RA_GYRO_YOUT_H);
-            gyl = controller.readRegister(Mpu6050Registers.MPU6050_RA_GYRO_YOUT_L);
+            gyh = Mpu6050Controller.readRegister(Mpu6050Registers.MPU6050_RA_GYRO_YOUT_H);
+            gyl = Mpu6050Controller.readRegister(Mpu6050Registers.MPU6050_RA_GYRO_YOUT_L);
 
             byte gzh;
             byte gzl;
-            gzh = controller.readRegister(Mpu6050Registers.MPU6050_RA_GYRO_ZOUT_H);
-            gzl = controller.readRegister(Mpu6050Registers.MPU6050_RA_GYRO_ZOUT_L);
+            gzh = Mpu6050Controller.readRegister(Mpu6050Registers.MPU6050_RA_GYRO_ZOUT_H);
+            gzl = Mpu6050Controller.readRegister(Mpu6050Registers.MPU6050_RA_GYRO_ZOUT_L);
 
             gx = byteToInt(gxl, gxh);
             gy = byteToInt(gyl, gyh);
@@ -304,13 +291,5 @@ public class Main {
         int result;
         result = (high*256 + low);
         return result;
-    }
-
-
-    public static void myPwm(int pwm1,int pwm2, int pwm3, int pwm4){
-        SoftPwm.softPwmWrite(22,pwm1);
-        SoftPwm.softPwmWrite(23,pwm2);
-        SoftPwm.softPwmWrite(24,pwm3);
-        SoftPwm.softPwmWrite(25,pwm4);
     }
 }
