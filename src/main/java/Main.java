@@ -28,13 +28,13 @@ public class Main {
 
     public static void motorPID(){
         Thread t = new Thread(()->{
-        /*
+
             try {
                 Thread.sleep(10);
             }catch(InterruptedException e){
                 e.printStackTrace();
             }
-         */
+         
 
             double pid_p_x = 0;
             double pid_i_x = 0;
