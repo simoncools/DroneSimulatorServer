@@ -12,7 +12,7 @@ public class Spi {
 
     public Spi(){
         try {
-            spi = SpiFactory.getInstance(SpiChannel.CS0, 100000, SpiDevice.DEFAULT_SPI_MODE);
+            spi = SpiFactory.getInstance(SpiChannel.CS0, 500000, SpiDevice.DEFAULT_SPI_MODE);
         }catch(IOException e){
             e.printStackTrace();
         }
@@ -46,9 +46,9 @@ public class Spi {
         byte data[] = {commands[0],commands[1]};
         try {
             byte[] result = spi.write(data[0]);
-            Thread.sleep(2);
+            Thread.sleep(0,100000);
              result = spi.write(data[1]);
-            Thread.sleep(2);
+            Thread.sleep(0,100000);
         }catch(IOException e){
             e.printStackTrace();
         }catch(InterruptedException e2){}

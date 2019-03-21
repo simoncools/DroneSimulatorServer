@@ -95,11 +95,11 @@ public class Mpu6050Controller {
     }
 
     public static void writeConfigRegisterAndValidate(String initialText, String successText, byte register, byte registerData) throws IOException {
-        System.out.println(initialText);
+       // System.out.println(initialText);
         writeRegister(register, registerData);
         byte returnedRegisterData = Mpu6050Controller.readRegister(register);
         if (returnedRegisterData == registerData) {
-            System.out.println(successText + formatBinary(returnedRegisterData));
+           // System.out.println(successText + formatBinary(returnedRegisterData));
         } else {
             throw new RuntimeException("Tried to write " + formatBinary(registerData) + " to "
                     + register + ", but validiating value returned " + formatBinary(returnedRegisterData));

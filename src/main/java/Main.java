@@ -1,8 +1,10 @@
 import com.pi4j.io.i2c.I2CFactory;
-import com.pi4j.wiringpi.SoftPwm;
 import java.io.IOException;
 
 public class Main {
+    static double p;
+    static double i;
+    static double d;
     public static void main(String argv[]){
         motorPID();
         startServer(argv);
@@ -10,11 +12,14 @@ public class Main {
 
     public static void startServer(String argv[]){
         Server myServer;
-        if (argv.length < 1) {
-            System.out.println("Please specify a port number.");
-        } else if(argv.length > 1) {
+        if (argv.length < 4) {
+            System.out.println("Please specify a port number and PID constants");
+        } else if(argv.length > 4) {
             System.out.println("Too many arguments.");
         }else{
+            p = Double.parseDouble(argv[1]);
+            i = Double.parseDouble(argv[2]);
+            d = Double.parseDouble(argv[3]);
             myServer = new Server(Integer.parseInt(argv[0]));
             Thread t = new Thread(()-> {
                 while(!myServer.isConnected()) {
@@ -34,7 +39,7 @@ public class Main {
             }catch(InterruptedException e){
                 e.printStackTrace();
             }
-         
+
 
             double pid_p_x = 0;
             double pid_i_x = 0;
@@ -43,21 +48,21 @@ public class Main {
             double pid_i_y = 0;
             double pid_d_y = 0;
 
-            double kp_x = 1; //PID constants X
-            double ki_x = 0.01;
-            double kd_x = 1;
+            double kp_x = p; //PID constants X
+            double ki_x = i;
+            double kd_x = d;
 
-            double kp_y = 10; //PID constants Y
-            double ki_y = 0.01;
-            double kd_y = 3;
+            double kp_y = p; //PID constants Y
+            double ki_y = i;
+            double kd_y = d;
 
             double previous_error_x = 0;
             double previous_error_y = 0;
             double PID_x = 0;
             double PID_y = 0;
 
-            double throttleX = 750;
-            double throttleY = 750;
+            double throttleX = 800;
+            double throttleY = 800;
 
             double pwm_x_right = 0;
             double pwm_x_left = 0;
@@ -79,7 +84,39 @@ public class Main {
             }
 
             double time = System.currentTimeMillis();
+            double acc_angle_error_x=0;
+            double acc_angle_error_y=0;
+            double gyro_raw_error_x=0;
+            double gyro_raw_error_y=0;
+            double counter = 0;
+            for(int i=0;i<100;i++) {
+                int[] data = readSensor();
+                if (data != null) {
+                    int acc_x = data[3];
+                    int acc_y = data[4];
+                    int acc_z = data[5];
+                    int gyro_x = data[0];
+                    int gyro_y = data[1];
+
+                    acc_angle_error_x += Math.toDegrees(Math.atan((acc_y / 4096.0) / Math.sqrt(Math.pow((acc_x / 4096.0), 2) + Math.pow((acc_z / 4096.0), 2))));
+                    acc_angle_error_y += Math.toDegrees(Math.atan(-1 * (acc_x / 4096.0) / Math.sqrt(Math.pow((acc_y / 4096.0), 2) + Math.pow((acc_z / 4096.0), 2))));
+                    gyro_raw_error_x += gyro_x / 32.8;
+                    gyro_raw_error_y += gyro_y / 32.8;
+                    // System.out.println("X :"+angles[0]+" Y :"+angles[1]);
+                    counter++;
+                } else {
+                    System.out.println("Error reading gyroscope");
+                }
+
+            }
+            Variables.gyro_raw_error_x = gyro_raw_error_x/counter;
+            Variables.gyro_raw_error_y = gyro_raw_error_y/counter;
+            Variables.acc_angle_error_x = acc_angle_error_x/counter;
+            Variables.acc_angle_error_y = acc_angle_error_y/counter;
+
+            time = System.currentTimeMillis();
             Spi spi = new Spi();
+            int cycles = 0;
             while(true) {
                 timePrev = time;
                 time = System.currentTimeMillis();
@@ -92,33 +129,33 @@ public class Main {
                     int gyro_x = data[0];
                     int gyro_y = data[1];
 
-                    double acc_angleX = Math.toDegrees(Math.atan((acc_y / 16384.0) / Math.sqrt(Math.pow((acc_x / 16384.0), 2) + Math.pow((acc_z / 16384.0), 2))));
-                    double acc_angleY = Math.toDegrees(Math.atan(-1 * (acc_x / 16384.0) / Math.sqrt(Math.pow((acc_y / 16384.0), 2) + Math.pow((acc_z / 16384.0), 2))));
-                    double gyro_angleX = gyro_x / 131.0;
-                    double gyro_angleY = gyro_y / 131.0;
+                    double acc_angleX = Math.toDegrees(Math.atan((acc_y /4096.0) / Math.sqrt(Math.pow((acc_x / 4096.0), 2) + Math.pow((acc_z / 4096.0), 2))))-Variables.acc_angle_error_x;
+                    double acc_angleY = Math.toDegrees(Math.atan(-1 * (acc_x / 4096.0) / Math.sqrt(Math.pow((acc_y / 4096.0), 2) + Math.pow((acc_z / 4096.0), 2))))-Variables.acc_angle_error_y;
+                    double gyro_angleX = (gyro_x / 32.8)-Variables.gyro_raw_error_x;
+                    double gyro_angleY = (gyro_y / 32.8)-Variables.gyro_raw_error_y;
 
                     angles[0] = (0.98 * (angles[0] + (gyro_angleX * elapsedTime))) + (0.02 * acc_angleX);
                     angles[1] = (0.98 * (angles[1] + (gyro_angleY * elapsedTime))) + (0.02 * acc_angleY);
                     Variables.angles = angles;
                     Variables.elapsedTime = elapsedTime;
-                   // System.out.println("X :"+angles[0]+" Y :"+angles[1]);
+                    // System.out.println("X :"+angles[0]+" Y :"+angles[1]);
                 }else{
-                   // System.out.println("Error reading gyroscope");
+                    // System.out.println("Error reading gyroscope");
                 }
 
                 /////////////////////////PID
                 double desiredAngleX = (double)Variables.x2 / 3;
                 double desiredAngleY = (double)Variables.y2 / 3;
-                double errorX = Variables.angles[0] - desiredAngleX + Variables.xoffset;
-                double errorY = Variables.angles[1] - desiredAngleY + Variables.yoffset;
+                double errorX = Variables.angles[0] - desiredAngleX;
+                double errorY = Variables.angles[1] - desiredAngleY;
 
                 pid_p_x = kp_x * errorX;
                 pid_p_y = kp_y * errorY;
 
-                if (errorX > -3 && errorX < 3) {
-                   pid_i_x += ki_x*errorX;
+                if (errorX > -5 && errorX < 5) {
+                    pid_i_x += ki_x*errorX;
                 }
-                if (errorY > -3 && errorY < 3) {
+                if (errorY > -5 && errorY < 5) {
                     pid_i_y += ki_y*errorY;
                 }
 
@@ -128,18 +165,18 @@ public class Main {
                 PID_x = pid_d_x+pid_i_x+pid_p_x;
                 PID_y = pid_d_y+pid_i_y+pid_p_y;
 
-                if (PID_x <-500){
-                    PID_x = -500;
+                if (PID_x <-400){
+                    PID_x = -400;
                 }
-                if (PID_x >500){
-                    PID_x = 500;
+                if (PID_x >400){
+                    PID_x = 400;
                 }
 
-                if (PID_y <-500){
-                    PID_y = -500;
+                if (PID_y <-400){
+                    PID_y = -400;
                 }
-                if (PID_y >500){
-                    PID_y = 500;
+                if (PID_y >400){
+                    PID_y = 400;
                 }
 
                 pwm_x_left = throttleX+PID_x;
@@ -148,46 +185,47 @@ public class Main {
                 pwm_y_left = throttleY+PID_y;
                 pwm_y_right = throttleY-PID_y;
 
-                if(pwm_x_right < 500)
+                if(pwm_x_right < 600)
                 {
-                    pwm_x_right = 500;
+                    pwm_x_right = 600;
                 }
                 if(pwm_x_right > 1000)
                 {
                     pwm_x_right = 1000;
                 }
 
-                if(pwm_x_left < 500)
+                if(pwm_x_left < 600)
                 {
-                    pwm_x_left = 500;
+                    pwm_x_left = 600;
                 }
                 if(pwm_x_left > 1000)
                 {
                     pwm_x_left = 1000;
                 }
 
-                if(pwm_y_right < 500)
+                if(pwm_y_right < 600)
                 {
-                    pwm_y_right = 500;
+                    pwm_y_right = 600;
                 }
                 if(pwm_y_right > 1000)
                 {
                     pwm_y_right = 1000;
                 }
 
-                if(pwm_y_left < 500)
+                if(pwm_y_left < 600)
                 {
-                    pwm_y_left = 500;
+                    pwm_y_left = 600;
                 }
                 if(pwm_y_left > 1000)
                 {
                     pwm_y_left = 1000;
                 }
 
-               /* ////////////////////////////////
+                ///////////////////////////////
                 //SPI test code for motor controller
                 //////////////////////////////////
                 //test 1
+                /*
                 pwm_x_left=875;
                 pwm_x_right=625;
                 pwm_y_left=500;
@@ -208,22 +246,26 @@ public class Main {
                 pwm_y_right = 500+(Variables.x2*5);
                 pwm_x_right = 500+(Variables.x2*5);
                 //System.out.println(Variables.x2);
-               */
+                */
 
                 spi.sendSpi((int)pwm_x_right,Variables.motor_x_right);
                 spi.sendSpi((int)pwm_x_left,Variables.motor_x_left);
                 spi.sendSpi((int)pwm_y_right,Variables.motor_y_right);
                 spi.sendSpi((int)pwm_y_left,Variables.motor_y_left);
-              /*  System.out.println("X Right :"+pwm_x_right);
-                System.out.println("X Left :"+pwm_x_left);
-                System.out.println("Y Right :"+pwm_y_right);
-                System.out.println("Y Left :"+pwm_y_left);
-                System.out.println("ErrorX :"+errorX);
-                System.out.println("ErrorY :"+errorY);
-                System.out.println("Elapsed :"+Variables.elapsedTime);
-                System.out.println("-----------------------");
-                System.out.println("");*/
-
+                if(cycles >= 100) {
+                    System.out.println("X Right :" + pwm_x_right);
+                    System.out.println("X Left :" + pwm_x_left);
+                    System.out.println("Y Right :" + pwm_y_right);
+                    System.out.println("Y Left :" + pwm_y_left);
+                    System.out.println("ErrorX :" + errorX);
+                    System.out.println("ErrorY :" + errorY);
+                    System.out.println("Elapsed :" + Variables.elapsedTime);
+                    System.out.println("-----------------------");
+                    System.out.println("");
+                    cycles = 0;
+                }else{
+                    cycles++;
+                }
                 previous_error_x = errorX;
                 previous_error_y = errorY;
             }
@@ -250,10 +292,10 @@ public class Main {
             ayh = Mpu6050Controller.readRegister(Mpu6050Registers.MPU6050_RA_ACCEL_YOUT_H);
             ayl = Mpu6050Controller.readRegister(Mpu6050Registers.MPU6050_RA_ACCEL_YOUT_L);
 
-            byte azh;
-            byte azl;
-            azh = Mpu6050Controller.readRegister(Mpu6050Registers.MPU6050_RA_ACCEL_ZOUT_H);
-            azl = Mpu6050Controller.readRegister(Mpu6050Registers.MPU6050_RA_ACCEL_ZOUT_L);
+            byte azh = 0;
+            byte azl = 0;
+            //azh = Mpu6050Controller.readRegister(Mpu6050Registers.MPU6050_RA_ACCEL_ZOUT_H);
+            //azl = Mpu6050Controller.readRegister(Mpu6050Registers.MPU6050_RA_ACCEL_ZOUT_L);
 
             byte gxh;
             byte gxl;
@@ -265,10 +307,10 @@ public class Main {
             gyh = Mpu6050Controller.readRegister(Mpu6050Registers.MPU6050_RA_GYRO_YOUT_H);
             gyl = Mpu6050Controller.readRegister(Mpu6050Registers.MPU6050_RA_GYRO_YOUT_L);
 
-            byte gzh;
-            byte gzl;
-            gzh = Mpu6050Controller.readRegister(Mpu6050Registers.MPU6050_RA_GYRO_ZOUT_H);
-            gzl = Mpu6050Controller.readRegister(Mpu6050Registers.MPU6050_RA_GYRO_ZOUT_L);
+            byte gzh=0;
+            byte gzl=0;
+            //gzh = Mpu6050Controller.readRegister(Mpu6050Registers.MPU6050_RA_GYRO_ZOUT_H);
+            //gzl = Mpu6050Controller.readRegister(Mpu6050Registers.MPU6050_RA_GYRO_ZOUT_L);
 
             gx = byteToInt(gxl, gxh);
             gy = byteToInt(gyl, gyh);
@@ -281,8 +323,8 @@ public class Main {
             int[] data = {gx,gy,gz,ax,ay,az};
             return data;
         } catch (IOException e) {
-           // System.out.println("Error reading gyroscope");
-           // e.printStackTrace();
+            // System.out.println("Error reading gyroscope");
+            // e.printStackTrace();
         }
         return null;
     }

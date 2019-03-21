@@ -11,6 +11,9 @@ public class Variables {
     public static int motor_y_right = 3; //B6
     public static int motor_y_left = 4;  //B7
 
-    public static int xoffset = 0;
-    public static int yoffset = 0;
+    public static double acc_angle_error_x = 0;
+    public static double acc_angle_error_y = 0;
+    public static double gyro_raw_error_x = 0;
+    public static double gyro_raw_error_y = 0;
+
 }
