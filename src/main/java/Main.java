@@ -129,10 +129,10 @@ public class Main {
                     int gyro_x = data[0];
                     int gyro_y = data[1];
 
-                    double acc_angleX = Math.toDegrees(Math.atan((acc_y /4096.0) / Math.sqrt(Math.pow((acc_x / 4096.0), 2) + Math.pow((acc_z / 4096.0), 2))))-Variables.acc_angle_error_x;
-                    double acc_angleY = Math.toDegrees(Math.atan(-1 * (acc_x / 4096.0) / Math.sqrt(Math.pow((acc_y / 4096.0), 2) + Math.pow((acc_z / 4096.0), 2))))-Variables.acc_angle_error_y;
-                    double gyro_angleX = (gyro_x / 32.8)-Variables.gyro_raw_error_x;
-                    double gyro_angleY = (gyro_y / 32.8)-Variables.gyro_raw_error_y;
+                    double acc_angleX = Math.toDegrees(Math.atan((acc_y /16384.0) / Math.sqrt(Math.pow((acc_x / 16384.0), 2) + Math.pow((acc_z / 16384.0), 2))))-Variables.acc_angle_error_x;
+                    double acc_angleY = Math.toDegrees(Math.atan(-1 * (acc_x / 16384.0) / Math.sqrt(Math.pow((acc_y / 16384.0), 2) + Math.pow((acc_z / 16384.0), 2))))-Variables.acc_angle_error_y;
+                    double gyro_angleX = (gyro_x / 131.0)-Variables.gyro_raw_error_x;
+                    double gyro_angleY = (gyro_y / 131.0)-Variables.gyro_raw_error_y;
 
                     angles[0] = (0.98 * (angles[0] + (gyro_angleX * elapsedTime))) + (0.02 * acc_angleX);
                     angles[1] = (0.98 * (angles[1] + (gyro_angleY * elapsedTime))) + (0.02 * acc_angleY);
@@ -221,38 +221,22 @@ public class Main {
                     pwm_y_left = 1000;
                 }
 
-                ///////////////////////////////
-                //SPI test code for motor controller
-                //////////////////////////////////
+
                 //test 1
                 /*
-                pwm_x_left=875;
-                pwm_x_right=625;
-                pwm_y_left=500;
-                pwm_y_right=250;
-                //test 2
-                pwm_x_left=800 + Variables.x2;
-                pwm_x_right=800 - Variables.x2;
-                pwm_y_left=800 + Variables.y2;
-                pwm_y_right=800 - Variables.y2;
-                //test 3
-                pwm_x_left=800 + Variables.x2 + Variables.y2;
-                pwm_x_right=800 - Variables.x2 - Variables.y2;
-                pwm_y_left=800 + Variables.x2 - Variables.y2 ;
-                pwm_y_right=800 - Variables.x2 + Variables.y2;
-                //
                 pwm_y_left = 500+(Variables.x2*5);
                 pwm_x_left = 500+(Variables.x2*5);
                 pwm_y_right = 500+(Variables.x2*5);
                 pwm_x_right = 500+(Variables.x2*5);
-                //System.out.println(Variables.x2);
+                System.out.println(Variables.x2);
                 */
 
-                spi.sendSpi((int)pwm_x_right,Variables.motor_x_right);
-                spi.sendSpi((int)pwm_x_left,Variables.motor_x_left);
-                spi.sendSpi((int)pwm_y_right,Variables.motor_y_right);
-                spi.sendSpi((int)pwm_y_left,Variables.motor_y_left);
-                if(cycles >= 100) {
+
+               SpiRunnable runnable = new SpiRunnable(spi,(int)pwm_x_right,(int)pwm_x_left,(int)pwm_y_right,(int)pwm_y_left);
+               Thread thread = new Thread(runnable);
+               thread.start();
+
+                if(cycles >= 50) {
                     System.out.println("X Right :" + pwm_x_right);
                     System.out.println("X Left :" + pwm_x_left);
                     System.out.println("Y Right :" + pwm_y_right);
@@ -335,3 +319,4 @@ public class Main {
         return result;
     }
 }
+
