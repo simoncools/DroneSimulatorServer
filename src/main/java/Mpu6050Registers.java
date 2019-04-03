@@ -51,6 +51,8 @@ public class Mpu6050Registers {
      * Slave 0 to be written into the FIFO buffer.
      *
      */
+    public static final byte MPU6050_RA_ACCEL_CONFIG_2 = 29;
+
     public static final byte MPU6050_RA_FIFO_EN = 35;
     /**
      * Bits 2 and 1 are reserved. Parameters: FIFO_OFLOW_EN I2C_MST_INT_EN

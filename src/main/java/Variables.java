@@ -13,7 +13,8 @@ public class Variables {
 
     public static double acc_angle_error_x = 0;
     public static double acc_angle_error_y = 0;
+    public static double acc_angle_error_z = 0;
+
     public static double gyro_raw_error_x = 0;
     public static double gyro_raw_error_y = 0;
-
 }

@@ -46,9 +46,9 @@ public class Spi {
         byte data[] = {commands[0],commands[1]};
         try {
             byte[] result = spi.write(data[0]);
-            Thread.sleep(0,100000);
+            Thread.sleep(1);
              result = spi.write(data[1]);
-            Thread.sleep(0,100000);
+            Thread.sleep(1);
         }catch(IOException e){
             e.printStackTrace();
         }catch(InterruptedException e2){}

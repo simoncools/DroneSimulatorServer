@@ -24,11 +24,11 @@ public class Mpu6050RegisterValues {
      * Fs (kHz) = 1
      *
      */
-    public static final byte MPU6050_RA_CONFIG = 0b00000001;
+    public static final byte MPU6050_RA_CONFIG = 0b000000011;
     /**
      * Setting accelerometer sensitivity to ± 2g
      */
-    public static final byte MPU6050_RA_ACCEL_CONFIG = 0b00000000;
+    public static final byte MPU6050_RA_ACCEL_CONFIG = 0b00011000;
     /**
      * Disabling FIFO buffer
      */
