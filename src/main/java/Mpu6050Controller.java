@@ -1,13 +1,14 @@
 import com.pi4j.io.i2c.I2CBus;
 import com.pi4j.io.i2c.I2CDevice;
 import com.pi4j.io.i2c.I2CFactory;
-import com.pi4j.wiringpi.I2C;
 
+import java.io.FileDescriptor;
 import java.io.IOException;
 
 public class Mpu6050Controller {
 
-    private static int fd;
+    private static I2CBus bus = null;
+    private static I2CDevice mpu6050 = null;
 
     public static void initialize() throws IOException, InterruptedException,I2CFactory.UnsupportedBusNumberException {
         initializeI2C();
@@ -15,8 +16,10 @@ public class Mpu6050Controller {
     }
 
     private static void initializeI2C() throws IOException,I2CFactory.UnsupportedBusNumberException {
-        fd = I2C.wiringPiI2CSetup(0x68);
-
+        System.out.println("Creating I2C bus");
+        bus = I2CFactory.getInstance(I2CBus.BUS_1);
+        System.out.println("Creating I2C device");
+        mpu6050 = bus.getDevice(0x68);
     }
 
     private static void configureMpu6050() throws IOException, InterruptedException {
@@ -24,7 +27,16 @@ public class Mpu6050Controller {
         writeConfigRegisterAndValidate(
                 "Written accel rate",
                 "Written accel rate",
-                (byte)29,(byte)0b00000011);
+                (byte)29,(byte)0b00000100);
+        writeConfigRegisterAndValidate(
+                "Written accel rate",
+                "Written accel rate",
+                (byte)106,(byte)0b01000000);
+
+        writeConfigRegisterAndValidate(
+                "Enabled fifo",
+                "Enabled fifo",
+                (byte)Mpu6050Registers.MPU6050_RA_FIFO_EN,Mpu6050RegisterValues.MPU6050_RA_FIFO_EN);
         //1 Waking the device up
         writeConfigRegisterAndValidate(
                 "Waking up device",
@@ -83,11 +95,12 @@ public class Mpu6050Controller {
 
 
     private static void writeRegister(byte register, byte data) throws IOException {
-        I2C.wiringPiI2CWriteReg8(fd,register, data);
+        mpu6050.write(register, data);
+
     }
 
     public static byte readRegister(byte register) throws IOException {
-        int data = I2C.wiringPiI2CReadReg8(fd,register);
+        int data = mpu6050.read(register);
         return (byte) data;
     }
 

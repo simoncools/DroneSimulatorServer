@@ -40,12 +40,12 @@ public class Main {
 
     public static void motorPID(){
         Thread t = new Thread(()->{
-            Rolling rolling_acc_x = new Rolling(2);
-            Rolling rolling_acc_y = new Rolling(2);
-            Rolling rolling_acc_z = new Rolling(2);
+            Rolling rolling_acc_x = new Rolling(10);
+            Rolling rolling_acc_y = new Rolling(10);
+            Rolling rolling_acc_z = new Rolling(10);
 
-            Rolling rolling_gyro_x = new Rolling(2);
-            Rolling rolling_gyro_y = new Rolling(2);
+            Rolling rolling_gyro_x = new Rolling(10);
+            Rolling rolling_gyro_y = new Rolling(10);
 
             try {
                 Thread.sleep(10);
@@ -115,8 +115,8 @@ public class Main {
                     int gyro_x = data[0];
                     int gyro_y = data[1];
 
-                    acc_angle_error_x += Math.toDegrees(Math.atan((acc_y /2048.0) / Math.sqrt(Math.pow((acc_x / 2048.0), 2) + Math.pow((acc_z / 2048.0), 2))));
-                    acc_angle_error_y += Math.toDegrees(Math.atan(-1 * (acc_x /2048.0) / Math.sqrt(Math.pow((acc_y / 2048.0), 2) + Math.pow((acc_z / 2048.0), 2))));
+                    acc_angle_error_x += Math.toDegrees(Math.atan((acc_y /16384.0) / Math.sqrt(Math.pow((acc_x / 16384.0), 2) + Math.pow((acc_z / 16384.0), 2))));
+                    acc_angle_error_y += Math.toDegrees(Math.atan(-1 * (acc_x /16384.0) / Math.sqrt(Math.pow((acc_y / 16384.0), 2) + Math.pow((acc_z / 16384.0), 2))));
 
                     gyro_raw_error_x += gyro_x / 16.4;
                     gyro_raw_error_y += gyro_y / 16.4;
@@ -163,8 +163,8 @@ public class Main {
                     acc_y = (int)Math.round(rolling_acc_y.getAvg());
                     acc_z = (int)Math.round(rolling_acc_z.getAvg());
 
-                    double acc_angleX = Math.toDegrees(Math.atan((acc_y /2048.0) / Math.sqrt(Math.pow((acc_x / 2048.0), 2) + Math.pow((acc_z / 2048.0), 2))))-Variables.acc_angle_error_x;
-                    double acc_angleY = Math.toDegrees(Math.atan(-1 * (acc_x /2048.0) / Math.sqrt(Math.pow((acc_y / 2048.0), 2) + Math.pow((acc_z / 2048.0), 2))))-Variables.acc_angle_error_y;
+                    double acc_angleX = Math.toDegrees(Math.atan((acc_y /16384.0) / Math.sqrt(Math.pow((acc_x / 16384.0), 2) + Math.pow((acc_z / 16384.0), 2))))-Variables.acc_angle_error_x;
+                    double acc_angleY = Math.toDegrees(Math.atan(-1 * (acc_x /16384.0) / Math.sqrt(Math.pow((acc_y / 16384.0), 2) + Math.pow((acc_z / 16384.0), 2))))-Variables.acc_angle_error_y;
                     double gyro_angleX = (gyro_x / 16.4) - Variables.gyro_raw_error_x;
                     double gyro_angleY = (gyro_y / 16.4)- Variables.gyro_raw_error_y;
 
@@ -173,37 +173,36 @@ public class Main {
 
                     Variables.angles[0] = angles[0];
                     Variables.angles[1] = angles[1];
-                    Variables.elapsedTime = elapsedTime;
                     // System.out.println("X :"+angles[0]+" Y :"+angles[1]);
                 }else{
                     // System.out.println("Error reading gyroscope");
                 }
-
+                Variables.elapsedTime = elapsedTime;
                 /////////////////////////PID
-                double desiredAngleX = (double)Variables.x2 / 5;
-                double desiredAngleY = (double)Variables.y2 / 5;
+                double desiredAngleX = (double)Variables.x2 / 3;
+                double desiredAngleY = (double)Variables.y2 / 3;
                 double errorX = Variables.angles[0] - desiredAngleX;
                 double errorY = Variables.angles[1] - desiredAngleY;
 
                 pid_p_x = kp_x * errorX;
                 pid_p_y = kp_y * errorY;
 
-                if (errorX > -3 && errorX < 3) {
+                if (errorX > -5 && errorX < 5) {
                     pid_i_x += ki_x*errorX;
                 }
-                if (errorY > -3 && errorY < 3) {
+                if (errorY > -5 && errorY < 5) {
                     pid_i_y += ki_y*errorY;
                 }
 
-                if(errorX<= -3 || errorX >= 3){
-                    pid_d_x = kd_x*((errorX-previous_error_x)/elapsedTime);
-                }else{
+                if(errorX <= -5 || errorX >= 5){
+                    pid_d_x = kd_x * ((errorX - previous_error_x) / elapsedTime);
+                }else {
                     pid_d_x = 0;
                 }
 
-                if(errorY<= -3 || errorY >=3) {
+                if(errorY <= -5 || errorY >= 5){
                     pid_d_y = kd_y * ((errorY - previous_error_y) / elapsedTime);
-                }else{
+                }else {
                     pid_d_y = 0;
                 }
 
@@ -281,15 +280,15 @@ public class Main {
                Thread thread = new Thread(runnable);
                thread.start();
 
-                    System.out.println("X Right :" + pwm_x_right);
-                    System.out.println("X Left :" + pwm_x_left);
+                   // System.out.println("X Right :" + pwm_x_right);
+                   // System.out.println("X Left :" + pwm_x_left);
                     //System.out.println("Y Right :" + pwm_y_right);
                    // System.out.println("Y Left :" + pwm_y_left);*/
                     System.out.println("ErrorX :" + errorX);
                    // System.out.println("ErrorY :" + errorY);
                     System.out.println("Elapsed :" + Variables.elapsedTime);
                     System.out.println("-----------------------");
-                    System.out.println("");
+                   // System.out.println("");
                     cycles = 0;
                 previous_error_x = errorX;
                 previous_error_y = errorY;

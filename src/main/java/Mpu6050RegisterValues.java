@@ -7,7 +7,7 @@ public class Mpu6050RegisterValues {
     /**
      * Sets the full scale range of the gyroscopes to ± 2000 °/s
      */
-    public static final byte MPU6050_RA_GYRO_CONFIG = 0b00011000;
+    public static final byte MPU6050_RA_GYRO_CONFIG = (byte)0b00011000;
     /**
      * Sets the smaple rate divider for the gyroscopes and accelerometers. This
      * means<br> acc-rate = 1kHz / 1+ sample-rate<br> and <br>gyro-rate = 8kHz /
@@ -24,15 +24,15 @@ public class Mpu6050RegisterValues {
      * Fs (kHz) = 1
      *
      */
-    public static final byte MPU6050_RA_CONFIG = 0b000000011;
+    public static final byte MPU6050_RA_CONFIG = 0b000000100;
     /**
      * Setting accelerometer sensitivity to ± 2g
      */
-    public static final byte MPU6050_RA_ACCEL_CONFIG = 0b00011000;
+    public static final byte MPU6050_RA_ACCEL_CONFIG = (byte)0b000000000;
     /**
      * Disabling FIFO buffer
      */
-    public static final byte MPU6050_RA_FIFO_EN = 0b00000000;
+    public static final byte MPU6050_RA_FIFO_EN = 0b01101000;
     /**
      * Disabling interrupts
      */

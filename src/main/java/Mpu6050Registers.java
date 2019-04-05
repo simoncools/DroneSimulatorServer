@@ -257,7 +257,7 @@ public class Mpu6050Registers {
 //    public static final byte MPU6050_RA_MEM_R_W = 0x6F;
 //    public static final byte MPU6050_RA_DMP_CFG_1 = 0x70;
 //    public static final byte MPU6050_RA_DMP_CFG_2 = 0x71;
-//    public static final byte MPU6050_RA_FIFO_COUNTH = 0x72;
-//    public static final byte MPU6050_RA_FIFO_COUNTL = 0x73;
-//    public static final byte MPU6050_RA_FIFO_R_W = 0x74;
+    public static final byte MPU6050_RA_FIFO_COUNTH = 0x72;
+   public static final byte MPU6050_RA_FIFO_COUNTL = 0x73;
+   public static final byte MPU6050_RA_FIFO_R_W = 0x74;
 }
