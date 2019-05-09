@@ -16,4 +16,9 @@ public class Variables {
 
     public static double gyro_raw_error_x = 0;
     public static double gyro_raw_error_y = 0;
+
+    public static double speed1 = 0;
+    public static double speed2 = 0;
+    public static double speed3 = 0;
+    public static double speed4 = 0;
 }

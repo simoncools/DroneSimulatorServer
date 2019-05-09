@@ -10,6 +10,8 @@ public class Main {
     static double integrate;
     static double d;
 
+    static int websitePort = 1337;
+
 
 
     public static void main(String argv[]){
@@ -34,6 +36,14 @@ public class Main {
                 }
             });
             t.start();
+            websiteSocket myWebsite;
+            myWebsite = new websiteSocket(websitePort);
+            Thread tWeb = new Thread(()-> {
+                while(!myWebsite.isConnected()) {
+                    myWebsite.listen();
+                }
+            });
+            tWeb.start();
 
         }
     }
@@ -74,8 +84,10 @@ public class Main {
             double PID_x = 0;
             double PID_y = 0;
 
-            double throttleX = 800;
-            double throttleY = 800;
+            double throttleX = 500;
+            double throttleY = 500;
+            double pidMax = 800;
+            double pidMin = 200;
 
             double pwm_x_right = 0;
             double pwm_x_left = 0;
@@ -90,10 +102,10 @@ public class Main {
                 Mpu6050Controller.initialize();
             }catch(IOException a){
                 a.printStackTrace();
-           }catch(InterruptedException b){
-               b.printStackTrace();
-           }catch(I2CFactory.UnsupportedBusNumberException c){
-               c.printStackTrace();
+            }catch(InterruptedException b){
+                b.printStackTrace();
+            }catch(I2CFactory.UnsupportedBusNumberException c){
+                c.printStackTrace();
             }
 
             double time;
@@ -156,12 +168,12 @@ public class Main {
                     rolling_gyro_x.add(gyro_x);
                     rolling_gyro_y.add(gyro_y);
 
-                    gyro_x = (int)Math.round(rolling_gyro_x.getAvg());
+                  /*  gyro_x = (int)Math.round(rolling_gyro_x.getAvg());
                     gyro_y = (int)Math.round(rolling_gyro_y.getAvg());
 
                     acc_x = (int)Math.round(rolling_acc_x.getAvg());
                     acc_y = (int)Math.round(rolling_acc_y.getAvg());
-                    acc_z = (int)Math.round(rolling_acc_z.getAvg());
+                    acc_z = (int)Math.round(rolling_acc_z.getAvg());*/
 
                     double acc_angleX = Math.toDegrees(Math.atan((acc_y /16384.0) / Math.sqrt(Math.pow((acc_x / 16384.0), 2) + Math.pow((acc_z / 16384.0), 2))))-Variables.acc_angle_error_x;
                     double acc_angleY = Math.toDegrees(Math.atan(-1 * (acc_x /16384.0) / Math.sqrt(Math.pow((acc_y / 16384.0), 2) + Math.pow((acc_z / 16384.0), 2))))-Variables.acc_angle_error_y;
@@ -179,48 +191,48 @@ public class Main {
                 }
                 Variables.elapsedTime = elapsedTime;
                 /////////////////////////PID
-                double desiredAngleX = (double)Variables.x2 / 3;
-                double desiredAngleY = (double)Variables.y2 / 3;
+                double desiredAngleX = (double)Variables.x2/2;
+                double desiredAngleY = (double)Variables.y2/2;
                 double errorX = Variables.angles[0] - desiredAngleX;
                 double errorY = Variables.angles[1] - desiredAngleY;
 
                 pid_p_x = kp_x * errorX;
                 pid_p_y = kp_y * errorY;
 
-                if (errorX > -5 && errorX < 5) {
-                    pid_i_x += ki_x*errorX;
-                }
-                if (errorY > -5 && errorY < 5) {
-                    pid_i_y += ki_y*errorY;
-                }
+                //if (errorX > -10 && errorX < 10) {
+                pid_i_x += ki_x*errorX;
+                //}
+                //if (errorY > -10 && errorY < 10) {
+                pid_i_y += ki_y*errorY;
+                //}
 
-                if(errorX <= -5 || errorX >= 5){
-                    pid_d_x = kd_x * ((errorX - previous_error_x) / elapsedTime);
-                }else {
-                    pid_d_x = 0;
-                }
+                //if(errorX <= -5 || errorX >= 5){
+                pid_d_x = kd_x * ((errorX - previous_error_x) / elapsedTime);
+                //}else {
+                //    pid_d_x = 0;
+                //}
 
-                if(errorY <= -5 || errorY >= 5){
-                    pid_d_y = kd_y * ((errorY - previous_error_y) / elapsedTime);
-                }else {
-                    pid_d_y = 0;
-                }
+                //if(errorY <= -5 || errorY >= 5){
+                pid_d_y = kd_y * ((errorY - previous_error_y) / elapsedTime);
+                //}else {
+                //    pid_d_y = 0;
+                //}
 
                 PID_x = pid_d_x+pid_i_x+pid_p_x;
                 PID_y = pid_d_y+pid_i_y+pid_p_y;
 
-                if (PID_x <-400){
-                    PID_x = -400;
+                if (PID_x <-(pidMax-pidMin)){
+                    PID_x = -(pidMax-pidMin);
                 }
-                if (PID_x >400){
-                    PID_x = 400;
+                if (PID_x >(pidMax-pidMin)){
+                    PID_x = (pidMax-pidMin);
                 }
 
-                if (PID_y <-400){
-                    PID_y = -400;
+                if (PID_y <-(pidMax-pidMin)){
+                    PID_y = -(pidMax-pidMin);
                 }
-                if (PID_y >400){
-                    PID_y = 400;
+                if (PID_y >(pidMax-pidMin)){
+                    PID_y = (pidMax-pidMin);
                 }
 
                 pwm_x_left = throttleX+PID_x;
@@ -229,40 +241,40 @@ public class Main {
                 pwm_y_left = throttleY+PID_y;
                 pwm_y_right = throttleY-PID_y;
 
-                if(pwm_x_right < 600)
+                if(pwm_x_right < pidMin)
                 {
-                    pwm_x_right = 600;
+                    pwm_x_right = pidMin;
                 }
-                if(pwm_x_right > 1000)
+                if(pwm_x_right > pidMax)
                 {
-                    pwm_x_right = 1000;
-                }
-
-                if(pwm_x_left < 600)
-                {
-                    pwm_x_left = 600;
-                }
-                if(pwm_x_left > 1000)
-                {
-                    pwm_x_left = 1000;
+                    pwm_x_right = pidMax;
                 }
 
-                if(pwm_y_right < 600)
+                if(pwm_x_left < pidMin)
                 {
-                    pwm_y_right = 600;
+                    pwm_x_left = pidMin;
                 }
-                if(pwm_y_right > 1000)
+                if(pwm_x_left > pidMax)
                 {
-                    pwm_y_right = 1000;
+                    pwm_x_left = pidMax;
                 }
 
-                if(pwm_y_left < 600)
+                if(pwm_y_right < pidMin)
                 {
-                    pwm_y_left = 600;
+                    pwm_y_right = pidMin;
                 }
-                if(pwm_y_left > 1000)
+                if(pwm_y_right > pidMax)
                 {
-                    pwm_y_left = 1000;
+                    pwm_y_right = pidMax;
+                }
+
+                if(pwm_y_left < pidMin)
+                {
+                    pwm_y_left = pidMin;
+                }
+                if(pwm_y_left > pidMax)
+                {
+                    pwm_y_left = pidMax;
                 }
 
 
@@ -276,25 +288,28 @@ public class Main {
                 */
 
 
-               SpiRunnable runnable = new SpiRunnable(spi,(int)pwm_x_right,(int)pwm_x_left,(int)pwm_y_right,(int)pwm_y_left);
-               Thread thread = new Thread(runnable);
-               thread.start();
-
-                   // System.out.println("X Right :" + pwm_x_right);
-                   // System.out.println("X Left :" + pwm_x_left);
-                    //System.out.println("Y Right :" + pwm_y_right);
-                   // System.out.println("Y Left :" + pwm_y_left);*/
+                SpiRunnable runnable = new SpiRunnable(spi,(int)pwm_x_right,(int)pwm_x_left,(int)pwm_y_right,(int)pwm_y_left);
+                Thread thread = new Thread(runnable);
+                thread.start();
+                Variables.speed1 = (pwm_x_right/pidMax)*100;
+                Variables.speed2 = (pwm_x_left/pidMax)*100;
+                Variables.speed3 = (pwm_y_right/pidMax)*100;
+                Variables.speed4 = (pwm_y_left/pidMax)*100;
+               /*     System.out.println("X Right :" + pwm_x_right);
+                    System.out.println("X Left :" + pwm_x_left);
+                    System.out.println("Y Right :" + pwm_y_right);
+                    System.out.println("Y Left :" + pwm_y_left);
                     System.out.println("ErrorX :" + errorX);
-                   // System.out.println("ErrorY :" + errorY);
+                    System.out.println("ErrorY :" + errorY);
                     System.out.println("Elapsed :" + Variables.elapsedTime);
                     System.out.println("-----------------------");
-                   // System.out.println("");
-                    cycles = 0;
+                    System.out.println("");*/
+                cycles = 0;
                 previous_error_x = errorX;
                 previous_error_y = errorY;
 
                 try{
-                    Thread.sleep(2);
+                    Thread.sleep(5);
                 }catch(InterruptedException e){
                     e.printStackTrace();
                 }
