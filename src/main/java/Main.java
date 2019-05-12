@@ -295,7 +295,7 @@ public class Main {
                 Variables.speed2 = (pwm_x_left/pidMax)*100;
                 Variables.speed3 = (pwm_y_right/pidMax)*100;
                 Variables.speed4 = (pwm_y_left/pidMax)*100;
-               /*     System.out.println("X Right :" + pwm_x_right);
+                  /*  System.out.println("X Right :" + pwm_x_right);
                     System.out.println("X Left :" + pwm_x_left);
                     System.out.println("Y Right :" + pwm_y_right);
                     System.out.println("Y Left :" + pwm_y_left);
