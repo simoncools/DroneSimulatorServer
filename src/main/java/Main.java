@@ -191,8 +191,8 @@ public class Main {
                 }
                 Variables.elapsedTime = elapsedTime;
                 /////////////////////////PID
-                double desiredAngleX = (double)Variables.x2/2;
-                double desiredAngleY = (double)Variables.y2/2;
+                double desiredAngleX = 0.3*((double)Variables.x2+(double)Variables.y2)*0.7;
+                double desiredAngleY = 0.3*((double)Variables.x2-(double)Variables.y2)*0.7;
                 double errorX = Variables.angles[0] - desiredAngleX;
                 double errorY = Variables.angles[1] - desiredAngleY;
 
