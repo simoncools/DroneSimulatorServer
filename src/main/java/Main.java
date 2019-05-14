@@ -151,6 +151,7 @@ public class Main {
                     int cycles = 0;
 
                     while (isConnected) {
+                        isConnected = Variables.controllerConnected;
                         int[] data = readSensor();
                         timePrev = time;
                         time = System.nanoTime();
@@ -290,15 +291,15 @@ public class Main {
                         Variables.speed2 = (pwm_x_left / pidMax) * 100;
                         Variables.speed3 = (pwm_y_right / pidMax) * 100;
                         Variables.speed4 = (pwm_y_left / pidMax) * 100;
-                  /*  System.out.println("X Right :" + pwm_x_right);
-                    System.out.println("X Left :" + pwm_x_left);
-                    System.out.println("Y Right :" + pwm_y_right);
-                    System.out.println("Y Left :" + pwm_y_left);
-                    System.out.println("ErrorX :" + errorX);
-                    System.out.println("ErrorY :" + errorY);
-                    System.out.println("Elapsed :" + Variables.elapsedTime);
-                    System.out.println("-----------------------");
-                    System.out.println("");*/
+                        System.out.println("X Right :" + pwm_x_right);
+                        System.out.println("X Left :" + pwm_x_left);
+                        System.out.println("Y Right :" + pwm_y_right);
+                        System.out.println("Y Left :" + pwm_y_left);
+                        System.out.println("ErrorX :" + errorX);
+                        System.out.println("ErrorY :" + errorY);
+                        System.out.println("Elapsed :" + Variables.elapsedTime);
+                        System.out.println("-----------------------");
+                        System.out.println("");
                         cycles = 0;
                         previous_error_x = errorX;
                         previous_error_y = errorY;
@@ -310,9 +311,13 @@ public class Main {
                         }
                     }
                 }else{
-                    SpiRunnable runnable = new SpiRunnable(spi, 0, 0, 0, 0);
-                    Thread thread = new Thread(runnable);
-                    thread.start();
+                    try{
+                        Thread.sleep(20);
+                        SpiRunnable runnable = new SpiRunnable(spi, 1, 1 ,1, 1);
+                        Thread thread = new Thread(runnable);
+                        thread.start();
+                        Thread.sleep(50);
+                    }catch(InterruptedException e){}
                 }
             }
         });
