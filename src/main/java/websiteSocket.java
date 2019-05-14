@@ -33,7 +33,9 @@ public class websiteSocket {
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
             while (clientSocket.isConnected()) {
-                String webMessage = Variables.angles[0]+" "+Variables.angles[1]+" "+Variables.speed1+" "+Variables.speed2+" "+Variables.speed3+" "+Variables.speed4;
+                double newY = 0.7*Variables.angles[0] + 0.7*Variables.angles[1];
+                double newX = -0.7*Variables.angles[0] + 0.7*Variables.angles[1];
+                String webMessage = newX+" "+newY+" "+Variables.speed1+" "+Variables.speed2+" "+Variables.speed3+" "+Variables.speed4;
                 out.println(webMessage);
                 try {
                     Thread.sleep(100);

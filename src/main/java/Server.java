@@ -44,6 +44,15 @@ public class Server {
                     String[] dataXY = myData.split(" ");
                     Variables.x2 = Integer.parseInt(dataXY[0]);
                     Variables.y2 = Integer.parseInt(dataXY[1]);
+                    double newX = 0.7*Variables.x2 + 0.7*Variables.y2;
+                    double newY = 0.7*-Variables.y2 + 0.7*Variables.x2;
+                    if(newX>100) newX=100;
+                    if(newX<-100) newX=-100;
+                    if(newY>100) newY=100;
+                    if(newY<-100) newY=-100;
+                    Variables.x2 = (int)newX;
+                    Variables.y2 = (int)newY;
+
                 }
               //  System.out.println("X1 :"+Variables.x1+" Y1 :"+Variables.y1);
                // System.out.println("X2 :"+Variables.x2+" Y2 :"+Variables.y2);
