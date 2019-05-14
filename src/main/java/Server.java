@@ -53,6 +53,14 @@ public class Server {
                     Variables.x2 = (int)newX;
                     Variables.y2 = (int)newY;
 
+                }else if(data.contains("TRU")){
+                    Variables.acc_angle_error_y = Variables.acc_angle_error_y+0.5;
+                }else if(data.contains("TRD")){
+                    Variables.acc_angle_error_y = Variables.acc_angle_error_y-0.5;
+                }else if(data.contains("TRL")){
+                    Variables.acc_angle_error_x = Variables.acc_angle_error_x+0.5;
+                }else if(data.contains("TRR")){
+                    Variables.acc_angle_error_x = Variables.acc_angle_error_x-0.5;
                 }
               //  System.out.println("X1 :"+Variables.x1+" Y1 :"+Variables.y1);
                // System.out.println("X2 :"+Variables.x2+" Y2 :"+Variables.y2);

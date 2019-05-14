@@ -21,4 +21,6 @@ public class Variables {
     public static double speed2 = 0;
     public static double speed3 = 0;
     public static double speed4 = 0;
+
+    public static boolean controllerConnected = false;
 }
