@@ -88,8 +88,9 @@ public class Mpu6050Controller {
 
         for (byte i = 1; i <= 120; i++) {
             byte registerData = Mpu6050Controller.readRegister(i);
-            System.out.println(i + "\t\tRegisterData:" + formatBinary(registerData));
+            //System.out.println(i + "\t\tRegisterData:" + formatBinary(registerData));
         }
+        System.out.println("Gyro initialized");
     }
 
 

@@ -23,4 +23,9 @@ public class Variables {
     public static double speed4 = 0;
 
     public static boolean controllerConnected = false;
+
+    public static String lat = "0.0";
+    public static String lon = "0.0";
+
+    public static boolean replay = false;
 }

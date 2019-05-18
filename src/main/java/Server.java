@@ -56,12 +56,21 @@ public class Server {
 
                 }else if(data.contains("TRU")){
                     Variables.acc_angle_error_y = Variables.acc_angle_error_y+1;
+                    Variables.acc_angle_error_x = Variables.acc_angle_error_x+1;
                 }else if(data.contains("TRD")){
                     Variables.acc_angle_error_y = Variables.acc_angle_error_y-1;
-                }else if(data.contains("TRL")){
-                    Variables.acc_angle_error_x = Variables.acc_angle_error_x+1;
-                }else if(data.contains("TRR")){
                     Variables.acc_angle_error_x = Variables.acc_angle_error_x-1;
+                }else if(data.contains("TRR")){
+                    Variables.acc_angle_error_x = Variables.acc_angle_error_x+1;
+                    Variables.acc_angle_error_y = Variables.acc_angle_error_y-1;
+                }else if(data.contains("TRL")){
+                    Variables.acc_angle_error_x = Variables.acc_angle_error_x-1;
+                    Variables.acc_angle_error_y = Variables.acc_angle_error_y+1;
+                }else if(data.contains("gps")){
+                    String[] latlong = data.split(" ");
+                    Variables.lat = latlong[1];
+                    Variables.lon = latlong[2];
+
                 }
               //  System.out.println("X1 :"+Variables.x1+" Y1 :"+Variables.y1);
                // System.out.println("X2 :"+Variables.x2+" Y2 :"+Variables.y2);

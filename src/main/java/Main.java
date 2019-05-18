@@ -11,7 +11,7 @@ public class Main {
     static double d;
 
     static int websitePort = 1337;
-
+    static int replayPort = 1338;
 
 
     public static void main(String argv[]){
@@ -45,6 +45,15 @@ public class Main {
             });
             tWeb.start();
 
+            ReplayListener myReplay;
+            myReplay = new ReplayListener(replayPort);
+            Thread tReplay = new Thread(()-> {
+                while(!myReplay.isConnected()) {
+                    myReplay.listen();
+                }
+            });
+            tReplay.start();
+
         }
     }
 
@@ -67,6 +76,7 @@ public class Main {
             while(true) {
                 boolean isConnected = Variables.controllerConnected;
                 if (isConnected) {
+                    DataLogger dataLogger = new DataLogger();
                     double pid_p_x = 0;
                     double pid_i_x = 0;
                     double pid_d_x = 0;
@@ -291,7 +301,7 @@ public class Main {
                         Variables.speed2 = (pwm_x_left / pidMax) * 100;
                         Variables.speed3 = (pwm_y_right / pidMax) * 100;
                         Variables.speed4 = (pwm_y_left / pidMax) * 100;
-                        System.out.println("X Right :" + pwm_x_right);
+                       /* System.out.println("X Right :" + pwm_x_right);
                         System.out.println("X Left :" + pwm_x_left);
                         System.out.println("Y Right :" + pwm_y_right);
                         System.out.println("Y Left :" + pwm_y_left);
@@ -299,7 +309,7 @@ public class Main {
                         System.out.println("ErrorY :" + errorY);
                         System.out.println("Elapsed :" + Variables.elapsedTime);
                         System.out.println("-----------------------");
-                        System.out.println("");
+                        System.out.println("");*/
                         cycles = 0;
                         previous_error_x = errorX;
                         previous_error_y = errorY;
@@ -310,6 +320,7 @@ public class Main {
                             e.printStackTrace();
                         }
                     }
+                    dataLogger.close();
                 }else{
                     try{
                         Thread.sleep(20);
