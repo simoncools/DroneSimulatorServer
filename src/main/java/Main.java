@@ -215,9 +215,13 @@ public class Main {
 
                         //if (errorX > -10 && errorX < 10) {
                         pid_i_x += ki_x * errorX;
+                        if(pid_i_x >200){pid_i_x = 200;}
+                        if(pid_i_x <-200){pid_i_x = -200;}
                         //}
                         //if (errorY > -10 && errorY < 10) {
                         pid_i_y += ki_y * errorY;
+                        if(pid_i_y >200){pid_i_y = 200;}
+                        if(pid_i_y <-200){pid_i_y = -200;}
                         //}
 
                         //if(errorX <= -5 || errorX >= 5){
@@ -255,6 +259,7 @@ public class Main {
                         pwm_y_left = throttleY + PID_y;
                         pwm_y_right = throttleY - PID_y;
 
+                        /* pid limit*/
                         if (pwm_x_right < pidMin) {
                             pwm_x_right = pidMin;
                         }
@@ -282,6 +287,8 @@ public class Main {
                         if (pwm_y_left > pidMax) {
                             pwm_y_left = pidMax;
                         }
+
+
 
 
                         //test 1
